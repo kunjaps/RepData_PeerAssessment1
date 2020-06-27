@@ -10,7 +10,8 @@ output:
 
 The file is loaded and stored in the object, "activity"
 
-```{r, echo=TRUE}
+
+```r
 if (!file.exists('activity.csv')) {
   unzip(zipfile = "activity.zip")
 }
@@ -20,13 +21,18 @@ activity <- read.csv("activity.csv", header = TRUE)
 
 ## What is mean total number of steps taken per day?
 
-```{r fig.cap = "Figure 1", echo=TRUE}
+
+```r
 total_steps <- aggregate(steps~date, activity, sum)
 hist(total_steps$steps,
      xlab = "Number of Steps",
      ylab = "Frequency",
      main = "Total Steps per Day")
+```
 
+![Figure 1](figure/unnamed-chunk-2-1.png)
+
+```r
 mean_total_steps <- mean(total_steps$steps, na.rm = TRUE)
 median_total_steps <- median(total_steps$steps, na.rm = TRUE)
 ```
@@ -34,22 +40,45 @@ median_total_steps <- median(total_steps$steps, na.rm = TRUE)
 
 ## What is the average daily activity pattern?
 
-```{r fig.cap = "Figure 2", echo = TRUE}
+
+```r
 library(ggplot2)
 steps_by_interval <- aggregate(steps~interval, activity, FUN = mean)
 
 g <- ggplot(data = steps_by_interval, aes(x = interval, y = steps))
 g + geom_line() + ggtitle("Average Daily Activity Pattern") + xlab("5-Minute Interval") + ylab("Mean Steps")
+```
 
+![Figure 2](figure/unnamed-chunk-3-1.png)
+
+```r
 print("The 5-Minute interval which contains the maximum number of steps on average is ")
+```
+
+```
+## [1] "The 5-Minute interval which contains the maximum number of steps on average is "
+```
+
+```r
 print(which(steps_by_interval$steps == max(steps_by_interval$steps)))      
+```
+
+```
+## [1] 104
 ```
 
 ## Imputing missing values
 
-```{r fig.cap = "", echo=TRUE}
-print(c("The total number of missing values in the dataset is ", sum(is.na(activity$steps))))
 
+```r
+print(c("The total number of missing values in the dataset is ", sum(is.na(activity$steps))))
+```
+
+```
+## [1] "The total number of missing values in the dataset is " "2304"
+```
+
+```r
 activity_new <- activity                                        # creating a new dataframe
 missing_indices <- which(is.na(activity$steps))                 # finding the indices that has missing values
 mean_by_interval <- aggregate(steps~interval, activity, mean)   # mean of intervals
@@ -78,7 +107,11 @@ hist(
   ylab = "Frequency",
   main = "Imputed Number of Steps Per Day"
 )
+```
 
+![](figure/unnamed-chunk-4-1.png)
+
+```r
 # finding the mean and median
 mean_by_date_after_imputing <- aggregate(steps~date, activity_new, mean)
 mean_after_imputing <- mean(mean_by_date_after_imputing$steps)
@@ -88,14 +121,33 @@ mean_before_imputing <- mean(mean_by_date$steps)
 median_before_imputing <- median(mean_by_date$steps)
 
 print(c("The difference in mean before and after imputing is ", mean_before_imputing - mean_after_imputing))
+```
+
+```
+## [1] "The difference in mean before and after imputing is " "0"
+```
+
+```r
 print(c("The difference in median before and after imputing is ", median_before_imputing - median_after_imputing))
+```
+
+```
+## [1] "The difference in median before and after imputing is " "-0.00412735849056389"
+```
+
+```r
 print(c("The difference in total number of steps is", sum(activity_new$steps)-sum(activity$steps, na.rm = TRUE)))
+```
+
+```
+## [1] "The difference in total number of steps is" "86129.5094339623"
 ```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r fig.cap = "Figure 3", echo = TRUE}
+
+```r
 # the dataset used will be activity_new (the one created after imputing the missing values)
 library(ggplot2)
 # converting the date column type from factor to date. 
@@ -119,3 +171,5 @@ activity_new$day <- sapply(activity_new$date, FUN = to_day_type)
 mean_steps_per_day_and_interval <- aggregate(steps~interval+day, activity_new, mean)
 ggplot(data = mean_steps_per_day_and_interval, aes(x = interval, y = steps)) + geom_line() + facet_grid(day ~ .) + xlab("5 minute intervals") + ylab("Average number of steps")
 ```
+
+![Figure 3](figure/unnamed-chunk-5-1.png)
